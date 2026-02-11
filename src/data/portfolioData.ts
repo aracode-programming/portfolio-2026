@@ -88,9 +88,9 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     {
         id: "2",
         title: "aracode｜ポートフォリオサイト",
-        subtitle: "ポートフォリオサイト",
+        subtitle: "究極のミニマルUIデザインを目指して。",
         period: "2026.2.1 - 2026.2.10 (10日)",
-        description: "自身紹介と実績紹介のために制作しました。将来的な拡張も踏まえたコーディングと実績紹介ではどのような作品でも、綺麗に掲載できるよう、究極のミニマルUIデザインを目指しました。",
+        description: "将来的な拡張も踏まえたコーディングと実績紹介ではどのような作品でも、綺麗に掲載できるよう、究極のミニマルUIデザインを目指しました。",
         websiteUrl: "/",
         images: [
             {
@@ -136,7 +136,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
             type: "ポートフォリオ",
             pageCount: "3ページ",
             pageList: ["トップページ", "実績詳細ページ", "404ページ"],
-            scope: ["UI/UXデザイン", "React/TypeScriptコーディング", "レスポンシブ対応, SEO対策"]
+            scope: ["UI/UXデザイン", "React/TypeScriptコーディング", "レスポンシブ対応", "SEO対策"]
         }
     }
 ];

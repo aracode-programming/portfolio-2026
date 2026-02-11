@@ -1,10 +1,11 @@
 import { 
-    Box, Heading, Text, VStack, HStack, Image, Button, 
-    SimpleGrid, Flex, IconButton, useBreakpointValue 
-} from "@chakra-ui/react"; // AspectRatio は使わなくなったので削除してもOK
+    Box, Heading, Text, VStack, Image, Button, 
+    SimpleGrid, Flex
+} from "@chakra-ui/react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { FaExternalLinkAlt, FaArrowLeft, FaPaperPlane, FaChevronDown } from "react-icons/fa";
-// framer-motion の AnimatePresence, PanInfo など、カルーセルでのみ使っていたものは削除OK
+import ReactGA from "react-ga4";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { SectionWrapper } from "../molecules/SectionWrapper";
@@ -176,6 +177,14 @@ const SpecsList = ({ specs }: { specs: any }) => {
 
 // --- コンポーネント: フッター誘導エリア ---
 const FooterCta = () => {
+   
+    const trackConversion = (platform: string) => {
+        ReactGA.event({
+        category: "conversion",     
+        action: "click_request_button",
+        label: platform,            
+        });
+    };
     return (
         <Box mt={20} py={20} bg="gray.50" borderRadius="xl" textAlign="center" px={6}>
             <VStack gap={8}>
@@ -261,7 +270,7 @@ const PortfolioDetail = () => {
                 title={project.title}
                 description={`${project.title}の制作実績詳細。${project.description.slice(0, 80)}...`}
                 path={`/portfolio/${project.id}`}
-                ogImage={project.images[0]?.pc} // 最初の画像をSNSシェア画像にする
+                ogImage={project.images[0]?.pc}
             />
             <BackButton />
             <SectionWrapper>

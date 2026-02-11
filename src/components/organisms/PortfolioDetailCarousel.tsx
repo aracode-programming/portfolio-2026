@@ -66,7 +66,7 @@ return (
         maxW={{ md: "1000px" }}
         // ▼▼▼ 修正: 高さ指定で表示エリアを確保（アスペクト比依存をやめる） ▼▼▼
         h={{ base: "60vh", md: "auto" }} // スマホでは画面高さの60%、PCは自動
-        aspectRatio={{ base: 9 / 16,md: 16 / 10 }} // PCのみ比率指定
+        aspectRatio={{ base: 9 / 16, md: 16 / 10 }} // PCのみ比率指定
         overflow="hidden"
         borderRadius={{ base: 0, md: "xl" }}
         boxShadow={{ base: "none", md: "2xl" }}
