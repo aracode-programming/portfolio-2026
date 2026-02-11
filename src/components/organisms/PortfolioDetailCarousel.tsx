@@ -23,7 +23,7 @@ export const PortfolioDetailCarousel = ({ images }: Props) => {
 const scrollContainerRef = useRef<HTMLDivElement>(null);
 const [currentIndex, setCurrentIndex] = useState(0);
 
-// ナビゲーション表示制御用
+// JSでの判定（ナビゲーション表示用）
 const isPC = useBreakpointValue({ base: false, md: true });
 
 const handleScroll = () => {
@@ -47,13 +47,14 @@ const scrollToIndex = (index: number) => {
     setCurrentIndex(index);
 };
 
+// リサイズ時などの位置調整
 useEffect(() => {
     if (scrollContainerRef.current) {
     const width = scrollContainerRef.current.offsetWidth;
     scrollContainerRef.current.scrollTo({ left: width * currentIndex });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isPC]); 
+}, [isPC]);
 
 return (
     <VStack gap={6} w="100%">
@@ -63,13 +64,15 @@ return (
         ml={{ base: "calc(50% - 50vw)", md: 0 }}
         mr={{ base: "calc(50% - 50vw)", md: 0 }}
         maxW={{ md: "1000px" }}
-        aspectRatio={{base: "9/16", md: "16/10"}}
+        // ▼▼▼ 修正: 高さ指定で表示エリアを確保（アスペクト比依存をやめる） ▼▼▼
+        h={{ base: "60vh", md: "auto" }} // スマホでは画面高さの60%、PCは自動
+        aspectRatio={{ md: 16 / 10 }} // PCのみ比率指定
         overflow="hidden"
         borderRadius={{ base: 0, md: "xl" }}
         boxShadow={{ base: "none", md: "2xl" }}
-        bg="black" // ★修正: 画像がフィットした際の余白を黒にする
-        border="solid 1px"
-        borderColor="gray.800"
+        bg="white" // ★修正: 背景を白にして余白を同化させる
+        borderBottom={{ base: "1px solid", md: "none" }} // スマホの境界線
+        borderColor="gray.100"
     >
         <Flex
         ref={scrollContainerRef}
@@ -88,43 +91,53 @@ return (
         {images.map((img, idx) => (
             <Box
             key={idx}
-            minW="100%"
-            flexShrink={0}
+            // ▼▼▼ 修正: 幅をガチガチに固定して「横スクロール」を防止 ▼▼▼
+            flex="0 0 100%" 
+            w="100%"
             h="100%"
             position="relative"
-            css={{ scrollSnapAlign: 'center' }}
-            display="flex" // 画像を中央寄せにする
+            css={{ 
+                scrollSnapAlign: 'center',
+                scrollSnapStop: 'always' // 1枚ずつ止まるように強制
+            }}
+            display="flex"
             alignItems="center"
             justifyContent="center"
             >
-            {/* pictureタグで画像の出し分け */}
-            <Box as="picture" w="100%" h="100%" display="flex" alignItems="center" justifyContent="center">
-                {/* 768px以上ならPC画像 (ここはcoverでもOK) */}
-                <source media="(min-width: 768px)" srcSet={img.pc} />
-                
-                {/* ★ここが修正の最重要ポイント
-                objectFit="contain" にすることで、画像全体を表示させます。
-                これにより「拡大」がなくなり、「見切れる」こともなくなります。
-                */}
-                <Image
+            {/* スマホ用画像 */}
+            <Image
                 src={img.sp}
+                display={{ base: "block", md: "none" }}
+                // ▼▼▼ 修正: 最大幅・最大高さを制限し、絶対にはみ出させない ▼▼▼
+                w="auto"
+                h="100%"
+                maxW="100%"
+                maxH="100%"
+                objectFit="contain" // 全体を表示
+                draggable={false}
+                alt={`Slide SP ${idx + 1}`}
+            />
+
+            {/* PC用画像 */}
+            <Image
+                src={img.pc}
+                display={{ base: "none", md: "block" }}
                 w="100%"
                 h="100%"
-                objectFit="contain" 
+                objectFit="cover" // PCは埋め尽くす
                 draggable={false}
-                alt={`Slide ${idx + 1}`}
-                />
-            </Box>
+                alt={`Slide PC ${idx + 1}`}
+            />
             </Box>
         ))}
         </Flex>
 
-        {/* --- ナビゲーション（変更なし） --- */}
+        {/* --- ナビゲーション類（インジケータ） --- */}
         <Box
         position="absolute"
         top={4}
         right={4}
-        bg="rgba(0, 0, 0, 0.6)"
+        bg="rgba(0, 0, 0, 0.4)"
         backdropFilter="blur(8px)"
         color="white"
         px={3}
@@ -139,6 +152,7 @@ return (
         {currentIndex + 1} <Box as="span" opacity={0.6} mx={1}>/</Box> {images.length}
         </Box>
 
+        {/* PC用 矢印ボタン */}
         <Box display={{ base: "none", md: "block" }}>
         <IconButton
             aria-label="Previous Slide"
@@ -177,6 +191,7 @@ return (
         </IconButton>
         </Box>
 
+        {/* スマホ用 ドットインジケータ */}
         <Box display={{ base: "block", md: "none" }}>
         <HStack
             position="absolute"
@@ -193,9 +208,10 @@ return (
                 w={idx === currentIndex ? "24px" : "6px"}
                 h="6px"
                 borderRadius="full"
-                bg={idx === currentIndex ? "teal.500" : "rgba(255,255,255,0.6)"}
+                // 背景が白になったので、ドットの色も見えやすいように調整
+                bg={idx === currentIndex ? "teal.500" : "gray.300"}
                 transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                boxShadow="0 2px 4px rgba(0,0,0,0.2)"
+                boxShadow="0 1px 2px rgba(0,0,0,0.1)"
             />
             ))}
         </HStack>
