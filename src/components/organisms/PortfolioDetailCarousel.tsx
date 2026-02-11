@@ -23,42 +23,30 @@ export const PortfolioDetailCarousel = ({ images }: Props) => {
 const scrollContainerRef = useRef<HTMLDivElement>(null);
 const [currentIndex, setCurrentIndex] = useState(0);
 
-// JSでの判定はナビゲーションの表示制御のみに使用
+// ナビゲーション表示制御用
 const isPC = useBreakpointValue({ base: false, md: true });
 
-// スクロール位置から現在のインデックスを判定
 const handleScroll = () => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
-    
     const scrollLeft = container.scrollLeft;
     const width = container.offsetWidth;
-    
     if (width === 0) return;
-
     const index = Math.round(scrollLeft / width);
-    
     if (index !== currentIndex && index >= 0 && index < images.length) {
     setCurrentIndex(index);
     }
 };
 
-// 指定インデックスへスクロール
 const scrollToIndex = (index: number) => {
     if (!scrollContainerRef.current) return;
     if (index < 0 || index >= images.length) return;
-    
     const container = scrollContainerRef.current;
     const width = container.offsetWidth;
-    
-    container.scrollTo({
-    left: width * index,
-    behavior: 'smooth'
-    });
+    container.scrollTo({ left: width * index, behavior: 'smooth' });
     setCurrentIndex(index);
 };
 
-// リサイズ時の位置補正
 useEffect(() => {
     if (scrollContainerRef.current) {
     const width = scrollContainerRef.current.offsetWidth;
@@ -75,14 +63,13 @@ return (
         ml={{ base: "calc(50% - 50vw)", md: 0 }}
         mr={{ base: "calc(50% - 50vw)", md: 0 }}
         maxW={{ md: "1000px" }}
-        // ▼ 修正: JS変数を使わず、Chakraのレスポンシブ構文でアスペクト比を切り替え
-        aspectRatio={{ base: 9 / 16, md: 16 / 10 }}
+        aspectRatio={{base: "9/16", md: "16/10"}}
         overflow="hidden"
         borderRadius={{ base: 0, md: "xl" }}
         boxShadow={{ base: "none", md: "2xl" }}
-        bg="gray.100"
+        bg="black" // ★修正: 画像がフィットした際の余白を黒にする
         border="solid 1px"
-        borderColor="gray.200"
+        borderColor="gray.800"
     >
         <Flex
         ref={scrollContainerRef}
@@ -106,17 +93,24 @@ return (
             h="100%"
             position="relative"
             css={{ scrollSnapAlign: 'center' }}
+            display="flex" // 画像を中央寄せにする
+            alignItems="center"
+            justifyContent="center"
             >
-            {/* ▼ 修正: pictureタグを使ってブラウザネイティブで画像を切り替え */}
-            <Box as="picture" w="100%" h="100%" display="block">
-                {/* 768px以上(PC)ならPC画像を表示 */}
-                <source media="(min-width: 48em)" srcSet={img.pc} />
-                {/* それ以外(スマホ)ならSP画像を表示 */}
+            {/* pictureタグで画像の出し分け */}
+            <Box as="picture" w="100%" h="100%" display="flex" alignItems="center" justifyContent="center">
+                {/* 768px以上ならPC画像 (ここはcoverでもOK) */}
+                <source media="(min-width: 768px)" srcSet={img.pc} />
+                
+                {/* ★ここが修正の最重要ポイント
+                objectFit="contain" にすることで、画像全体を表示させます。
+                これにより「拡大」がなくなり、「見切れる」こともなくなります。
+                */}
                 <Image
                 src={img.sp}
                 w="100%"
                 h="100%"
-                objectFit="cover"
+                objectFit="contain" 
                 draggable={false}
                 alt={`Slide ${idx + 1}`}
                 />
@@ -125,12 +119,12 @@ return (
         ))}
         </Flex>
 
-        {/* 右上の枚数表示 */}
+        {/* --- ナビゲーション（変更なし） --- */}
         <Box
         position="absolute"
         top={4}
         right={4}
-        bg="rgba(0, 0, 0, 0.4)"
+        bg="rgba(0, 0, 0, 0.6)"
         backdropFilter="blur(8px)"
         color="white"
         px={3}
@@ -145,7 +139,6 @@ return (
         {currentIndex + 1} <Box as="span" opacity={0.6} mx={1}>/</Box> {images.length}
         </Box>
 
-        {/* PC用矢印ナビゲーション */}
         <Box display={{ base: "none", md: "block" }}>
         <IconButton
             aria-label="Previous Slide"
@@ -184,7 +177,6 @@ return (
         </IconButton>
         </Box>
 
-        {/* モバイル用 ドットナビゲーション */}
         <Box display={{ base: "block", md: "none" }}>
         <HStack
             position="absolute"
@@ -210,7 +202,7 @@ return (
         </Box>
     </Box>
 
-    {/* PC用サムネイルナビゲーション */}
+    {/* PC用サムネイル */}
     <Box display={{ base: "none", md: "block" }} w="100%">
         <HStack gap={3} overflowX="auto" py={2} w="100%" justify="center">
         {images.map((img, idx) => (
