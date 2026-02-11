@@ -14,10 +14,10 @@ path,
 ogImage 
 }: SeoProps) => {
 // 基本設定
-const siteName = "aracode | Web Creator Portfolio";
+const siteName = "aracode | Web Engineer Portfolio";
 const defaultDescription = "心理学に基づいた「成果が出る」Webサイト制作。React/TypeScriptを中心としたモダンな技術で、信頼と没入感のあるWeb体験を提供します。";
-const baseUrl = "https://aracode-portfolio.pages.dev"; // ★あなたのURL
-const defaultImage = `${baseUrl}/og-image.png`; // ★デフォルトのOGP画像（publicに配置推奨）
+const baseUrl = "https://aracode-portfolio.pages.dev";
+const defaultImage = `${baseUrl}/og-image.png`;
 
 // 現在のページ情報
 const pageTitle = title ? `${title} | aracode` : siteName;

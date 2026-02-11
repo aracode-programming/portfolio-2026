@@ -23,10 +23,8 @@ export const PortfolioDetailCarousel = ({ images }: Props) => {
 const scrollContainerRef = useRef<HTMLDivElement>(null);
 const [currentIndex, setCurrentIndex] = useState(0);
 
-// PC/SP判定
+// JSでの判定はナビゲーションの表示制御のみに使用
 const isPC = useBreakpointValue({ base: false, md: true });
-const currentImageSrc = (img: ImageType) => (isPC ? img.pc : img.sp);
-const aspectRatio = isPC ? 16 / 10 : 9 / 16;
 
 // スクロール位置から現在のインデックスを判定
 const handleScroll = () => {
@@ -36,13 +34,10 @@ const handleScroll = () => {
     const scrollLeft = container.scrollLeft;
     const width = container.offsetWidth;
     
-    // 0除算防止
     if (width === 0) return;
 
-    // 現在のページインデックスを計算
     const index = Math.round(scrollLeft / width);
     
-    // インデックスが変わった時だけState更新（再レンダリング抑制）
     if (index !== currentIndex && index >= 0 && index < images.length) {
     setCurrentIndex(index);
     }
@@ -60,11 +55,10 @@ const scrollToIndex = (index: number) => {
     left: width * index,
     behavior: 'smooth'
     });
-    // クリック時は即座にStateも更新して反応を良くする
     setCurrentIndex(index);
 };
 
-// 画面リサイズ時やPC/SP切り替え時に位置ズレを補正
+// リサイズ時の位置補正
 useEffect(() => {
     if (scrollContainerRef.current) {
     const width = scrollContainerRef.current.offsetWidth;
@@ -81,7 +75,8 @@ return (
         ml={{ base: "calc(50% - 50vw)", md: 0 }}
         mr={{ base: "calc(50% - 50vw)", md: 0 }}
         maxW={{ md: "1000px" }}
-        aspectRatio={aspectRatio}
+        // ▼ 修正: JS変数を使わず、Chakraのレスポンシブ構文でアスペクト比を切り替え
+        aspectRatio={{ base: 9 / 16, md: 16 / 10 }}
         overflow="hidden"
         borderRadius={{ base: 0, md: "xl" }}
         boxShadow={{ base: "none", md: "2xl" }}
@@ -89,38 +84,43 @@ return (
         border="solid 1px"
         borderColor="gray.200"
     >
-        {/* ▼▼▼ スクロールエリア ▼▼▼ */}
         <Flex
         ref={scrollContainerRef}
         onScroll={handleScroll}
         w="100%"
         h="100%"
-        overflowX="auto" // 横スクロール有効
+        overflowX="auto"
         overflowY="hidden"
         css={{
-            scrollSnapType: 'x mandatory', // スナップを強制
-            WebkitOverflowScrolling: 'touch', // iOSでの慣性スクロール有効化
-            '&::-webkit-scrollbar': { display: 'none' }, // スクロールバー隠し
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            '&::-webkit-scrollbar': { display: 'none' },
             scrollbarWidth: 'none',
         }}
         >
         {images.map((img, idx) => (
             <Box
             key={idx}
-            minW="100%"     // 横幅100%
-            flexShrink={0}  // ★重要: これがないと画像が縮んでスワイプできなくなります
+            minW="100%"
+            flexShrink={0}
             h="100%"
             position="relative"
-            css={{ scrollSnapAlign: 'center' }} // 中央に吸着
+            css={{ scrollSnapAlign: 'center' }}
             >
-            <Image
-                src={currentImageSrc(img)}
+            {/* ▼ 修正: pictureタグを使ってブラウザネイティブで画像を切り替え */}
+            <Box as="picture" w="100%" h="100%" display="block">
+                {/* 768px以上(PC)ならPC画像を表示 */}
+                <source media="(min-width: 48em)" srcSet={img.pc} />
+                {/* それ以外(スマホ)ならSP画像を表示 */}
+                <Image
+                src={img.sp}
                 w="100%"
                 h="100%"
                 objectFit="cover"
-                draggable={false} // 画像自体のドラッグを防止してスワイプを阻害させない
+                draggable={false}
                 alt={`Slide ${idx + 1}`}
-            />
+                />
+            </Box>
             </Box>
         ))}
         </Flex>
@@ -146,9 +146,8 @@ return (
         </Box>
 
         {/* PC用矢印ナビゲーション */}
-        {isPC && (
-        <>
-            <IconButton
+        <Box display={{ base: "none", md: "block" }}>
+        <IconButton
             aria-label="Previous Slide"
             position="absolute"
             left={4}
@@ -156,17 +155,17 @@ return (
             transform="translateY(-50%)"
             zIndex={3}
             onClick={() => scrollToIndex(currentIndex - 1)}
-            disabled={currentIndex === 0} // isDisabled -> disabled に修正
+            disabled={currentIndex === 0}
             rounded="full"
             bg="whiteAlpha.900"
             color="teal.500"
             shadow="lg"
             _hover={{ bg: "white", transform: "translateY(-50%) scale(1.1)" }}
-            >
+        >
             <FaChevronLeft />
-            </IconButton>
+        </IconButton>
 
-            <IconButton
+        <IconButton
             aria-label="Next Slide"
             position="absolute"
             right={4}
@@ -174,20 +173,19 @@ return (
             transform="translateY(-50%)"
             zIndex={3}
             onClick={() => scrollToIndex(currentIndex + 1)}
-            disabled={currentIndex === images.length - 1} // isDisabled -> disabled に修正
+            disabled={currentIndex === images.length - 1}
             rounded="full"
             bg="whiteAlpha.900"
             color="teal.500"
             shadow="lg"
             _hover={{ bg: "white", transform: "translateY(-50%) scale(1.1)" }}
-            >
+        >
             <FaChevronRight />
-            </IconButton>
-        </>
-        )}
+        </IconButton>
+        </Box>
 
         {/* モバイル用 ドットナビゲーション */}
-        {!isPC && (
+        <Box display={{ base: "block", md: "none" }}>
         <HStack
             position="absolute"
             bottom={4}
@@ -209,11 +207,11 @@ return (
             />
             ))}
         </HStack>
-        )}
+        </Box>
     </Box>
 
     {/* PC用サムネイルナビゲーション */}
-    {isPC && (
+    <Box display={{ base: "none", md: "block" }} w="100%">
         <HStack gap={3} overflowX="auto" py={2} w="100%" justify="center">
         {images.map((img, idx) => (
             <Box
@@ -235,7 +233,7 @@ return (
             </Box>
         ))}
         </HStack>
-    )}
+    </Box>
     </VStack>
 );
 };
