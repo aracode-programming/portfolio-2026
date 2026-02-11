@@ -231,6 +231,7 @@ return (
                             // 【修正】カーソル制御
                             onMouseEnter={() => setCursorType(isOpen ? "CLOSE" : "OPEN")}
                             onMouseLeave={() => setCursorType("DEFAULT")}
+                            _focusVisible={{outline: "none"}}
                         >
                             <Flex align="center" justify="space-between" w="100%" gap={4} wrap="wrap">
                                 <HStack align="baseline" minW={{ base: "100%", md: "200px" }}>

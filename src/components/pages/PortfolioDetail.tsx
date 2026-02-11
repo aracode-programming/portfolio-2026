@@ -1,19 +1,18 @@
-// src/components/pages/PortfolioDetail.tsx
 import { 
     Box, Heading, Text, VStack, HStack, Image, Button, 
-    SimpleGrid, Flex, AspectRatio, IconButton, useBreakpointValue 
-} from "@chakra-ui/react";
+    SimpleGrid, Flex, IconButton, useBreakpointValue 
+} from "@chakra-ui/react"; // AspectRatio は使わなくなったので削除してもOK
 import { useParams, Link as RouterLink } from "react-router-dom";
-import { FaExternalLinkAlt, FaArrowLeft, FaChevronLeft, FaChevronRight, FaPaperPlane, FaChevronDown } from "react-icons/fa";
-import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { FaExternalLinkAlt, FaArrowLeft, FaPaperPlane, FaChevronDown } from "react-icons/fa";
+// framer-motion の AnimatePresence, PanInfo など、カルーセルでのみ使っていたものは削除OK
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { SectionWrapper } from "../molecules/SectionWrapper";
 import { PORTFOLIO_DATA } from "../../data/portfolioData";
 import { useCursor } from "../../contexts/CursorContext";
+import { PortfolioDetailCarousel } from "../organisms/PortfolioDetailCarousel";
+import { Seo } from '../utils/Seo';
 
-// --- モーションコンポーネント ---
-const MotionImage = motion.create(Image);
-const MotionBox = motion.create(Box);
 
 // --- コンポーネント: 戻るボタン ---
 const BackButton = () => {
@@ -42,225 +41,6 @@ const BackButton = () => {
                 </Button>
             </RouterLink>
         </Box>
-    );
-};
-
-// --- コンポーネント: カルーセル (スワイプ対応 & レスポンシブ) ---
-const ProjectCarousel = ({ images }: { images: { pc: string; sp: string }[] }) => {
-    const [[currentIndex, direction], setPage] = useState([0, 0]);
-    const { setCursorType } = useCursor();
-    
-    // PCかSPか判定 (md以上でPC)
-    const isPC = useBreakpointValue({ base: false, md: true });
-
-    const len = images.length;
-
-    // ページ遷移関数
-    const paginate = useCallback((newDirection: number) => {
-        setPage(([prevIndex]) => {
-            let nextIndex = prevIndex + newDirection;
-            if (nextIndex < 0) nextIndex = len - 1;
-            if (nextIndex >= len) nextIndex = 0;
-            return [nextIndex, newDirection];
-        });
-    }, [len]);
-
-    const handleThumbnailClick = (index: number) => {
-        setPage([index, index > currentIndex ? 1 : -1]);
-    };
-
-    // アニメーション設定: 横移動のみ
-    const variants = {
-        enter: (dir: number) => ({
-            x: dir > 0 ? "100%" : "-100%",
-        }),
-        center: {
-            zIndex: 1,
-            x: 0,
-        },
-        exit: (dir: number) => ({
-            zIndex: 0,
-            x: dir < 0 ? "100%" : "-100%",
-        }),
-    };
-
-    // スワイプ判定ロジック
-    const swipeConfidenceThreshold = 10000;
-    const swipePower = (offset: number, velocity: number) => {
-        return Math.abs(offset) * velocity;
-    };
-
-    const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, { offset, velocity }: PanInfo) => {
-        const swipe = swipePower(offset.x, velocity.x);
-
-        if (swipe < -swipeConfidenceThreshold) {
-            paginate(1);
-        } else if (swipe > swipeConfidenceThreshold) {
-            paginate(-1);
-        }
-    };
-
-    const currentImageSrc = isPC ? images[currentIndex].pc : images[currentIndex].sp;
-    const aspectRatio = isPC ? 16 / 10 : 9 / 16;
-
-    return (
-        <VStack gap={6} w="100%">
-            <Box 
-                position="relative" 
-                w={{ base: "100vw", md: "100%" }}
-                ml={{ base: "calc(50% - 50vw)", md: 0 }}
-                mr={{ base: "calc(50% - 50vw)", md: 0 }}
-                maxW={{ md: "1000px" }}
-                aspectRatio={aspectRatio}
-                overflow="hidden"
-                borderRadius={{ base: 0, md: "xl" }}
-                boxShadow={{ base: "none", md: "2xl" }}
-                bg="gray.100"
-                border="solid 1px"
-                borderColor="brand.border"
-            >
-                <AnimatePresence initial={false} custom={direction} mode="popLayout">
-                    <MotionImage
-                        key={currentIndex}
-                        src={currentImageSrc}
-                        custom={direction}
-                        variants={variants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{
-                            x: { type: "spring", stiffness: 300, damping: 30 },
-                        }}
-                        // スワイプ設定
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={1}
-                        onDragEnd={handleDragEnd}
-                        
-                        position="absolute"
-                        w="100%"
-                        h="100%"
-                        objectFit="cover"
-                        alt={`Slide ${currentIndex + 1}`}
-                        style={{ touchAction: "pan-y" }} 
-                    />
-                </AnimatePresence>
-
-                {/* 右上の枚数表示 */}
-                <Box
-                    position="absolute"
-                    top={4}
-                    right={4}
-                    bg="rgba(0, 0, 0, 0.4)"
-                    backdropFilter="blur(8px)"
-                    color="white"
-                    px={3}
-                    py={1}
-                    borderRadius="full"
-                    fontSize="xs"
-                    fontWeight="bold"
-                    letterSpacing="widest"
-                    zIndex={2}
-                    boxShadow="0 2px 10px rgba(0,0,0,0.1)"
-                    pointerEvents="none"
-                >
-                    {currentIndex + 1} <Box as="span" opacity={0.6} mx={1}>/</Box> {len}
-                </Box>
-
-                {/* PC用ナビゲーション矢印 */}
-                {isPC && (
-                    <>
-                        {/* 左矢印 */}
-                        <IconButton
-                            aria-label="Previous Slide"
-                            position="absolute"
-                            left={4}
-                            top="50%"
-                            transform="translateY(-50%)"
-                            zIndex={3}
-                            onClick={() => paginate(-1)}
-                            rounded="full"
-                            bg="whiteAlpha.900"
-                            color="brand.primary"
-                            shadow="lg"
-                            _hover={{ bg: "white", transform: "translateY(-50%) scale(1.1)" }}
-                            transition="all 0.2s"
-                        >
-                            <FaChevronLeft />
-                        </IconButton>
-
-                        {/* 右矢印 */}
-                        <IconButton
-                            aria-label="Next Slide"
-                            position="absolute"
-                            right={4}
-                            top="50%"
-                            transform="translateY(-50%)"
-                            zIndex={3}
-                            onClick={() => paginate(1)}
-                            rounded="full"
-                            bg="whiteAlpha.900"
-                            color="brand.primary"
-                            shadow="lg"
-                            _hover={{ bg: "white", transform: "translateY(-50%) scale(1.1)" }}
-                            transition="all 0.2s"
-                        >
-                            <FaChevronRight />
-                        </IconButton>
-                    </>
-                )}
-
-                {/* モバイル用 ドットナビゲーション */}
-                {!isPC && (
-                    <HStack 
-                        position="absolute" 
-                        bottom={4} 
-                        left="50%" 
-                        transform="translateX(-50%)" 
-                        gap={2} 
-                        zIndex={2}
-                        pointerEvents="none"
-                    >
-                        {images.map((_, idx) => (
-                            <Box
-                                key={idx}
-                                w={idx === currentIndex ? "24px" : "6px"}
-                                h="6px"
-                                borderRadius="full"
-                                bg={idx === currentIndex ? "brand.primary" : "brand.accent"}
-                                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                                boxShadow="0 2px 4px rgba(0,0,0,0.2)"
-                            />
-                        ))}
-                    </HStack>
-                )}
-            </Box>
-
-            {/* PC用サムネイルナビゲーション */}
-            {isPC && (
-                <HStack gap={3} overflowX="auto" py={2} w="100%" justify="center">
-                    {images.map((img, idx) => (
-                        <Box
-                            key={idx}
-                            w="80px"
-                            h="50px"
-                            flexShrink={0}
-                            borderRadius="md"
-                            overflow="hidden"
-                            cursor="pointer"
-                            opacity={idx === currentIndex ? 1 : 0.4}
-                            border="2px solid"
-                            borderColor={idx === currentIndex ? "brand.primary" : "transparent"}
-                            transition="all 0.3s"
-                            onClick={() => handleThumbnailClick(idx)}
-                            _hover={{ opacity: 1 }}
-                        >
-                            <Image src={img.pc} w="100%" h="100%" objectFit="cover" />
-                        </Box>
-                    ))}
-                </HStack>
-            )}
-        </VStack>
     );
 };
 
@@ -322,15 +102,16 @@ const SmoothAccordionItem = ({ label, value }: { label: string, value: string })
                 onClick={() => setIsOpen(!isOpen)}
                 _hover={{ bg: "gray.50" }}
                 textAlign="left"
+                _focusVisible={{outline: "none"}}
             >
-                <Text fontSize="xs" fontWeight="bold" letterSpacing="widest" color="gray.500">
+                <Text fontSize="md" fontWeight="bold" letterSpacing="widest" color="gray.500">
                     {label}
                 </Text>
                 <Box 
                     transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"} 
                     transition="transform 0.3s ease"
                     color="gray.400"
-                    fontSize="xs"
+                    fontSize="sm"
                 >
                     <FaChevronDown />
                 </Box>
@@ -345,9 +126,11 @@ const SmoothAccordionItem = ({ label, value }: { label: string, value: string })
                         style={{ overflow: "hidden" }}
                     >
                         <Box pb={4}>
-                            <Text fontSize="sm" color="gray.700" fontWeight="medium" lineHeight="1.6">
-                                {value}
-                            </Text>
+                            <Box p={4} bg="brand.accent" borderRadius="sm">
+                                <Text fontSize="sm" color="gray.700" fontWeight="medium" lineHeight="1.6">
+                                    {value}
+                                </Text>
+                            </Box>
                         </Box>
                     </motion.div>
                 )}
@@ -474,8 +257,13 @@ const PortfolioDetail = () => {
 
     return (
         <Box w="100%" bg="white" minH="100vh" pb={40}>
+            <Seo 
+                title={project.title}
+                description={`${project.title}の制作実績詳細。${project.description.slice(0, 80)}...`}
+                path={`/portfolio/${project.id}`}
+                ogImage={project.images[0]?.pc} // 最初の画像をSNSシェア画像にする
+            />
             <BackButton />
-
             <SectionWrapper>
                 <VStack align="stretch" gap={{ base: 16, md: 24 }}>
                     
@@ -509,7 +297,7 @@ const PortfolioDetail = () => {
                     </Box>
 
                     {/* 2. Carousel */}
-                    <ProjectCarousel images={project.images} />
+                    <PortfolioDetailCarousel images={project.images} />
 
                     {/* 3. Link & Description */}
                     <SimpleGrid columns={{ base: 1, md: 2 }} gap={16}>

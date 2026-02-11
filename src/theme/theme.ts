@@ -6,13 +6,13 @@ const customConfig = defineConfig({
     tokens: {
       colors: {
         brand: {
-          bg: { value: "#FFFFFF" }, // 完全な白（清潔感）
-          text: { value: "#2D3748" }, // 真っ黒ではないダークグレー（目に優しい）
-          subText: { value: "#718096" }, // 補足テキスト
-          primary: { value: "#319795" }, // Chakraのteal.500（信頼・知性）
-          primaryDark: { value: "#285E61" }, // ホバーや強調用（アクセシビリティ確保）
-          accent: { value: "#E6FFFA" }, // 薄いティール（背景装飾など）
-          border: { value: "#E2E8F0" }, // 薄いグレーの境界線
+          bg: { value: "#FFFFFF" },
+          text: { value: "#2D3748" },
+          subText: { value: "#718096" },
+          primary: { value: "#319795" },
+          primaryDark: { value: "#285E61" },
+          accent: { value: "#e5f6f3" },
+          border: { value: "#E2E8F0" },
           gradation: {value: "linear-gradient(270deg,rgba(44, 149, 165, 1) 0%, rgba(49, 151, 149, 1) 100%)"}
         },
       },

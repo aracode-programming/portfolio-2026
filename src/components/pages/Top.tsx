@@ -7,6 +7,7 @@ import ProfileSection from "../organisms/ProfileSection";
 import { TypewriterText } from "../atoms/TypewriterText";
 import { useAnimationState } from "../../contexts/AnimationStateContext";
 import { AuroraBackground } from "../atoms/AuroraBackground";
+import { Seo } from '../utils/Seo';
 
 // モーションコンポーネントの作成
 const MotionHeading = motion.create(Heading);
@@ -154,6 +155,7 @@ const HeroSection = memo(() => {
 const Top = memo(() => {
     return (
         <Box>
+            <Seo />
             <HeroSection />
             <WorksScroll />
             <ProfileSection />

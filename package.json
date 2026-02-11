@@ -11,12 +11,15 @@
   },
   "dependencies": {
     "@ark-ui/react": "^5.31.0",
-    "@chakra-ui/react": "next",
+    "@chakra-ui/react": "^3.0.0-next.32",
+    "@emotion/react": "^11.14.0",
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
     "framer-motion": "latest",
+    "next-themes": "^0.4.6",
     "react": "latest",
     "react-dom": "latest",
+    "react-helmet-async": "^2.0.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "latest",
     "three": "latest"
@@ -27,6 +30,7 @@
     "@types/three": "latest",
     "@vitejs/plugin-react": "latest",
     "typescript": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "vite-tsconfig-paths": "^6.1.0"
   }
 }

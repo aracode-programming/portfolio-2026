@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aracode-portfolio.pages.dev/sitemap.xml
