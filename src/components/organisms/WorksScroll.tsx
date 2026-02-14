@@ -198,7 +198,7 @@ const WorksScroll = memo(() => {
                     WORKS
                 </Box>
                 <Heading color="brand.text" size="2xl">
-                    実績紹介
+                    事例紹介
                 </Heading>
             </VStack>
 

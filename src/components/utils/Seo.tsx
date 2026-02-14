@@ -14,10 +14,12 @@ path,
 ogImage 
 }: SeoProps) => {
 // 基本設定
-const siteName = "aracode | Web Engineer Portfolio";
-const defaultDescription = "心理学に基づいた「成果が出る」Webサイト制作。React/TypeScriptを中心としたモダンな技術で、信頼と没入感のあるWeb体験を提供します。";
-const baseUrl = "https://aracode-portfolio.pages.dev";
-const defaultImage = `${baseUrl}/og-image.png`;
+const siteName = "aracode | Webエンジニア × UI/UXデザイナー";
+const defaultDescription = "Webエンジニア & UI/UXデザイナー「aracode」のポートフォリオサイト";
+const baseUrl = "https://aracode.net";
+
+// ▼修正: publicフォルダはURLに含めず、ドメイン直下を指定します
+const defaultImage = `${baseUrl}/ogp.png`;
 
 // 現在のページ情報
 const pageTitle = title ? `${title} | aracode` : siteName;
@@ -39,7 +41,7 @@ const structuredData = {
     "addressCountry": "JP"
     },
     "sameAs": [
-    "https://www.instagram.com/aracode.programming", // ★SNSリンク
+    "https://www.instagram.com/aracode.programming",
     "https://coconala.com/services/4005291"
     ]
 };
@@ -50,7 +52,6 @@ return (
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={pageUrl} />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     {/* OGP (Facebook, Slack, Discordなど) */}
     <meta property="og:site_name" content={siteName} />
